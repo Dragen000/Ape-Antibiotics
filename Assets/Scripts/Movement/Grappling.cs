@@ -42,7 +42,8 @@ public class Grappling : MonoBehaviour
     [Tooltip("Index of the cooldown icon in CooldownManager.")]
     public int cooldownIconIndex = 0; // Index of the cooldown icon in CooldownManager
 
-
+    //storing private variable to hold animator. 
+    private Animator animator;
 
     [Header("Input")]
     public KeyCode grappleKey = KeyCode.R;
@@ -58,6 +59,9 @@ public class Grappling : MonoBehaviour
         dj = GetComponent<DoubleJump>();
         rb = GetComponent<Rigidbody>();
         grappleGun.SetActive(false);
+
+        // adding grappling trigger from animation controller.
+        animator = GetComponentInChildren<Animator>();
 
         // grapplingCdTimer = new WaitForSeconds(grapplingCd);
     }
@@ -88,21 +92,30 @@ public class Grappling : MonoBehaviour
 
         grappling = true;
 
+        //grapple animation triggered. 
+        animator.SetTrigger("Grapple");
+
         RaycastHit hit;
         if (Physics.Raycast(shootPoint.position, shootPoint.forward, out hit, maxGrappleDistance, whatIsGrappable))
         {
             Debug.Log($"We hit {hit.transform.name}");
             savedHit = hit;
             ExecuteGrapplePhysics(savedHit);
+
+            //starting holding animation for grapple. 
+            animator.SetBool("Grappling", true);
+
         }
         else
         {
+            animator.SetBool("Grappling", false);
             return;
         }
 
         lr.enabled = true;
+        // gun needs either linked or matching animation. TODO
         grappleGun.SetActive(true);
-        
+
     }
 
     private IEnumerator GrappleCooldown()
@@ -146,6 +159,10 @@ public class Grappling : MonoBehaviour
     {
         grappling = false;
         grappleGun.SetActive(false);
+
+        //ending animation hold for grapple. 
+        animator.SetBool("Grappling", false);
+
         lr.enabled = false;
         Destroy(joint);
 
