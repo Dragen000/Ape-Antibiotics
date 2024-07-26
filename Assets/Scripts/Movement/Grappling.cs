@@ -12,12 +12,14 @@ public class Grappling : MonoBehaviour
     public Transform shootPoint;
     public LayerMask whatIsGrappable;
     public LineRenderer lr;
+    public Animator playerAnimator;
     [SerializeField] GameObject cameraHolder;
     [SerializeField] GameObject grappleGun;
 
     [Header("Grappling")]
     public float maxGrappleDistance;
     public float grappleDelayTime;
+    public Animator grappleAnimator;
 
     private Vector3 grapplePoint;
     private SpringJoint joint;
@@ -60,10 +62,6 @@ public class Grappling : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         grappleGun.SetActive(false);
 
-        // adding grappling trigger from animation controller.
-        animator = GetComponentInChildren<Animator>();
-
-        // grapplingCdTimer = new WaitForSeconds(grapplingCd);
     }
 
     void Update()
@@ -93,7 +91,9 @@ public class Grappling : MonoBehaviour
         grappling = true;
 
         //grapple animation triggered. 
-        animator.SetTrigger("Grapple");
+        grappleGun.SetActive(true);
+        grappleAnimator.SetTrigger("GrappleTriggerPull");
+        playerAnimator.SetTrigger("Grapple");
 
         RaycastHit hit;
         if (Physics.Raycast(shootPoint.position, shootPoint.forward, out hit, maxGrappleDistance, whatIsGrappable))
@@ -103,18 +103,19 @@ public class Grappling : MonoBehaviour
             ExecuteGrapplePhysics(savedHit);
 
             //starting holding animation for grapple. 
-            animator.SetBool("Grappling", true);
+            playerAnimator.SetBool("Grappling", true);
+            grappleAnimator.SetBool("IsGrappleHolding", true);
 
         }
         else
         {
-            animator.SetBool("Grappling", false);
+            playerAnimator.SetBool("Grappling", false);
+            grappleAnimator.SetBool("IsGrappleHolding", false);
             return;
         }
 
         lr.enabled = true;
         // gun needs either linked or matching animation. TODO
-        grappleGun.SetActive(true);
 
     }
 
@@ -158,6 +159,7 @@ public class Grappling : MonoBehaviour
     private void StopGrapple()
     {
         grappling = false;
+        grappleAnimator.SetBool("IsGrappleHolding", false);
         grappleGun.SetActive(false);
 
         //ending animation hold for grapple. 
