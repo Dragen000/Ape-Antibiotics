@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class HUDManager : MonoBehaviour
 {
@@ -20,6 +21,7 @@ public class HUDManager : MonoBehaviour
     [SerializeField] private GameObject hudManager;
     [SerializeField] private GameObject win;
     [SerializeField] private GameObject gameOver;
+    [SerializeField] private GameObject instructionHolder;
 
     //============================= UI Manager ====================================
     // Start is called before the first frame update
@@ -28,6 +30,7 @@ public class HUDManager : MonoBehaviour
         if (hudManager != null)
         {
             ShowHud();
+            HideHint();
         }
     }
 
@@ -50,6 +53,20 @@ public class HUDManager : MonoBehaviour
         hudManager.SetActive(true);
         win.SetActive(false);
         gameOver.SetActive(true);
+    }
+
+    public void ShowCurrentHint(Sprite newImg)
+    {
+        Image hudImage = instructionHolder.GetComponent<Image>();
+        hudImage.sprite = newImg;
+        hudImage.SetNativeSize();
+        instructionHolder.SetActive(true);
+        
+    }
+
+    public void HideHint()
+    {
+        instructionHolder.SetActive(false);
     }
 
     public void ExitGame()
